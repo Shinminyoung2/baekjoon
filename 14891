@@ -1,0 +1,94 @@
+#include <iostream>
+#include <bitset>
+#include <string>
+#define _CRT_SECURE_NO_WARNINGS
+#define ROR(n) ((0x01 & n)<<7 | n>>1)
+#define ROL(n) ((0x80 & n)>>7 | n<<1)
+
+using namespace std;
+//톱니바퀴 n,s극 상태를 10진수로 저장
+int top[4];
+//어떤 방향으로 회전할지
+//int rot[4];
+
+int main()
+{
+	string n;
+	for (int i = 0; i < 4; i++) {
+		cin >> n;
+		int sum = 0;
+		int k = 1;
+		for (int j = 7; j >=0; j--) {
+			if (n[j] % 2 != 0)
+				sum += k;
+			k *= 2;
+		}
+		top[i] = sum;
+	}
+
+	int T;
+	cin >> T;
+	while (T--) {
+		int nb, dir;
+		cin >> nb >> dir;
+		
+		int rot[4] = { 0,0,0,0 };
+		if (nb == 1) {
+			rot[0] = dir;
+			for (int i = 0; i < 3; i++) {
+				dir *= -1;
+				if ((top[i]>>5 & 1) == (top[i + 1]>>1 & 1))
+					break;
+				rot[i+1] = dir;
+			}
+		}else if (nb == 2) {
+			rot[1] = dir;
+			if ((top[0]>>5 & 1) != (top[1]>>1 & 1))
+				rot[0] = -dir;
+			for (int i = 1; i < 3; i++) {
+				dir *= -1;
+				if ((top[i]>>5 & 1) == (top[i + 1]>>1 & 1))
+					break;
+				rot[i+1] = dir;
+			}
+
+		}
+		else if (nb == 3) {
+			rot[2] = dir;
+			if ((top[2]>>5 & 1) != (top[3]>>1 & 1))
+				rot[3] = -dir;
+			for (int i = 2; i > 0; i--) {
+				dir *= -1;
+				if ((top[i]>>1 & 1) == (top[i - 1]>>5 & 1))
+					break;
+				rot[i - 1] = dir;
+			}
+
+		}
+		else {
+			rot[3] = dir;
+			for (int i = 3; i > 0; i--) {
+				dir *= -1;
+				if ((top[i]>>1 & 1) == (top[i - 1]>>5 & 1))
+					break;
+				rot[i - 1] = dir;
+			}
+		}
+
+		//cout << rot[0] << " " << rot[1] << " " << rot[2] << " " << rot[3] << endl;
+		for (int i = 0; i < 4; i++) {
+			if (rot[i] == 1)
+				top[i] = ROR(top[i]);
+			else if (rot[i] == -1)
+				top[i] = ROL(top[i]);
+		}
+		//cout << bitset<8>(top[0]) << endl;
+		//cout << bitset<8>(top[1]) << endl;
+		//cout << bitset<8>(top[2]) << endl;
+		//cout << bitset<8>(top[3]) << endl;
+	}
+
+	int total;
+	total = (top[0]>>7 & 1) * 1 + (top[1]>>7 & 1) * 2 + (top[2]>>7 & 1) * 4 + (top[3]>>7 & 1) * 8;
+	cout << total<<endl;
+}
